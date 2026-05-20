@@ -198,7 +198,11 @@ function App() {
         <section className="hero-panel" aria-labelledby="home-title">
           <div className="hero-panel__content">
             <p className="eyebrow">今日のホーム</p>
-            <h1 id="home-title">在庫から、今日作れるレシピをすぐ提案</h1>
+            <h1 id="home-title">
+              作れるレシピを
+              <br />
+              在庫からすぐ提案
+            </h1>
             <p className="hero-panel__lead">
               食材登録、期限管理、レシピ生成、買い物リストまでをひとつの画面から始められます。
             </p>

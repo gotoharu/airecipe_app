@@ -13,7 +13,12 @@ export const supabase =
     ? createClient(supabaseUrl, supabasePublishableKey)
   : null
 
-export async function checkSupabaseConnection() {
+type SupabaseStatus = {
+  ok: boolean
+  message: string
+}
+
+export function checkSupabaseConnection(): SupabaseStatus {
   if (!supabase || !supabaseUrl || !supabasePublishableKey) {
     return {
       ok: false,
@@ -22,28 +27,18 @@ export async function checkSupabaseConnection() {
   }
 
   try {
-    const response = await fetch(`${supabaseUrl}/rest/v1/`, {
-      headers: {
-        apikey: supabasePublishableKey,
-        Authorization: `Bearer ${supabasePublishableKey}`,
-      },
-    })
-
-    if (!response.ok) {
-      return {
-        ok: false,
-        message: 'Supabase接続エラー',
-      }
-    }
+    new URL(supabaseUrl)
   } catch {
     return {
       ok: false,
-      message: 'Supabase接続エラー',
+      message: 'Supabase URL確認',
     }
   }
 
   return {
     ok: true,
-    message: 'Supabase接続済み',
+    message: 'Supabase設定済み',
   }
 }
+
+console.info(`[あいくっく] ${checkSupabaseConnection().message}`)

@@ -1,5 +1,4 @@
-import { useEffect, useState } from 'react'
-import { checkSupabaseConnection } from './lib/supabase'
+import './lib/supabase'
 import './App.css'
 
 type Feature = {
@@ -166,22 +165,6 @@ function FeatureCard({ feature }: { feature: Feature }) {
 }
 
 function App() {
-  const [supabaseStatus, setSupabaseStatus] = useState('Supabase確認中')
-
-  useEffect(() => {
-    let isMounted = true
-
-    checkSupabaseConnection().then((status) => {
-      if (isMounted) {
-        setSupabaseStatus(status.message)
-      }
-    })
-
-    return () => {
-      isMounted = false
-    }
-  }, [])
-
   return (
     <div className="app-shell">
       <header className="topbar">
@@ -202,7 +185,6 @@ function App() {
         </nav>
 
         <div className="topbar__actions">
-          <span className="connection-status">{supabaseStatus}</span>
           <button type="button" className="icon-button" aria-label="通知">
             <Icon name="bell" />
           </button>

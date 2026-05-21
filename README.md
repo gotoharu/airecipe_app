@@ -93,10 +93,11 @@ cd airecipe_app
 `.env` には次の内容を保存してください。
 
 ```env
-SUPABASE_URL=URL
-SUPABASE_PUBLISHABLE_KEY=APIkey
-GROQ_API_KEY=APIkey
-GROQ_MODEL=llama-3.3-70b-versatile
+SUPABASE_URL=https://url.supabase.co
+SUPABASE_PUBLISHABLE_KEY=pass
+GROQ_API_KEY=apiキー
+GROQ_MODEL=llama-4-scout-17b-16e-instruct
+
 ```
 
 `.env` は各自のPCで作成するファイルです。GitHub にはアップロードしません。

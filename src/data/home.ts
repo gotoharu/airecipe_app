@@ -2,34 +2,34 @@ import type { Feature, Ingredient, Recipe } from '../types/ui'
 
 export const primaryFeatures: Feature[] = [
   {
-    title: '繝ｬ繧ｷ繝皮函謌・',
+    title: 'レシピ生成',
     description:
-      '蝨ｨ蠎ｫ繝ｻ螂ｽ縺ｿ繝ｻ隱ｿ逅・凾髢薙°繧陰I縺檎鍵遶句呵｣懊ｒ菴懈・',
-    action: '菴懊ｊ縺溘＞譁咏炊繧呈爾縺・',
+      '在庫、好み、調理時間からAIが献立候補を作成',
+    action: '作りたい料理を探す',
     icon: 'spark',
     tone: 'green',
   },
   {
-    title: '鬟滓攝逋ｻ骭ｲ',
+    title: '食材登録',
     description:
-      '謇句・蜉帙√Ξ繧ｷ繝ｼ繝域聴蠖ｱ縲∫判蜒剰ｪ崎ｭ倥〒蜀ｷ阡ｵ蠎ｫ縺ｫ霑ｽ蜉',
-    action: '鬟滓攝繧定ｿｽ蜉縺吶ｋ',
+      '手入力、レシート撮影、画像認識で冷蔵庫に追加',
+    action: '食材を追加する',
     icon: 'basket',
     tone: 'yellow',
   },
   {
-    title: '雋ｷ縺・黄繝ｪ繧ｹ繝・',
+    title: '買い物リスト',
     description:
-      '雜ｳ繧翫↑縺・攝譁吶ｒ閾ｪ蜍輔〒繝ｪ繧ｹ繝亥喧縺励※莠育ｮ励〒邨槭ｊ霎ｼ縺ｿ',
-    action: '繝ｪ繧ｹ繝医ｒ隕九ｋ',
+      '足りない食材を自動でリスト化して予算で絞り込み',
+    action: 'リストを見る',
     icon: 'list',
     tone: 'blue',
   },
   {
-    title: '隱ｿ逅・ｱ･豁ｴ',
+    title: '調理履歴',
     description:
-      '菴懊▲縺溘Ξ繧ｷ繝斐√♀豌励↓蜈･繧翫∽ｽｿ逕ｨ驥上ｒ縺ｾ縺ｨ繧√※遒ｺ隱・',
-    action: '螻･豁ｴ繧帝幕縺・',
+      '作ったレシピ、お気に入り、使用量をまとめて確認',
+    action: '履歴を開く',
     icon: 'clock',
     tone: 'red',
   },
@@ -37,66 +37,66 @@ export const primaryFeatures: Feature[] = [
 
 export const secondaryFeatures: Feature[] = [
   {
-    title: '縺頑ｰ励↓蜈･繧・',
-    description: '縺ｾ縺滉ｽ懊ｊ縺溘＞繝ｬ繧ｷ繝斐ｒ菫晏ｭ・',
-    action: '菫晏ｭ俶ｸ医∩',
+    title: 'お気に入り',
+    description: 'また作りたいレシピを保存',
+    action: '保存済み',
     icon: 'heart',
     tone: 'red',
   },
   {
-    title: '繧｢繧ｫ繧ｦ繝ｳ繝郁ｨｭ螳・',
-    description: '險隱槭√Ο繧ｰ繧｢繧ｦ繝医√Θ繝ｼ繧ｶ繝ｼ邂｡逅・',
-    action: '險ｭ螳・',
+    title: 'アカウント設定',
+    description: '言語、ログアウト、ユーザー管理',
+    action: '設定',
     icon: 'settings',
     tone: 'slate',
   },
   {
-    title: '縺雁撫縺・粋繧上○',
-    description: '豌励↓縺ｪ繧狗せ繧・お繝ｩ繝ｼ繧帝∽ｿ｡',
-    action: '騾∽ｿ｡',
+    title: 'お問い合わせ',
+    description: '気になる点やエラーを送信',
+    action: '送信',
     icon: 'message',
     tone: 'violet',
   },
 ]
 
 export const expiringIngredients: Ingredient[] = [
-  { name: '鮓上ｂ繧りｉ', amount: '320g', status: '莉頑律縺ｾ縺ｧ' },
-  { name: '蟆乗收闖・', amount: '1譚・', status: '譏取律縺ｾ縺ｧ' },
-  { name: '迚帑ｹｳ', amount: '500ml', status: '谿九ｊ2譌･' },
+  { name: '鮭切り身', amount: '320g', status: '今日まで' },
+  { name: '小松菜', amount: '1束', status: '明日まで' },
+  { name: '牛乳', amount: '500ml', status: '残り2日' },
 ]
 
 export const suggestedRecipes: Recipe[] = [
   {
-    name: '鮓剰ｉ縺ｨ蟆乗收闖懊・蜥碁｢ｨ繧ｯ繝ｪ繝ｼ繝辣ｮ',
-    meta: '25蛻・/ 邏・20kcal',
-    tags: ['譛滄剞蜆ｪ蜈・', '蜥梧ｴ倶ｸｭ', '迚帑ｹｳ豸郁ｲｻ'],
+    name: '鮭と小松菜の和風クリーム煮',
+    meta: '25分 / 約420kcal',
+    tags: ['期限優先', '和洋中', '牛乳消費'],
   },
   {
-    name: '蜀ｷ阡ｵ蠎ｫ謨ｴ逅・・蜈ｷ縺縺上＆繧鍋ｒ繧・',
-    meta: '15蛻・/ 髮｣譏灘ｺｦ縺九ｓ縺溘ｓ',
-    tags: ['譎ら洒', '蝨ｨ蠎ｫ豢ｻ逕ｨ'],
+    name: '冷蔵庫整理の具だくさん鍋',
+    meta: '15分 / 難易度かんたん',
+    tags: ['時短', '在庫活用'],
   },
 ]
 
 export const summaryItems = [
   {
-    label: '逋ｻ骭ｲ鬟滓攝',
+    label: '登録食材',
     value: '18',
-    note: '3莉ｶ縺ｯ譛滄剞縺瑚ｿ代＞',
+    note: '3件は期限が近い',
   },
   {
-    label: '雋ｷ縺・黄繝｡繝｢',
+    label: '買い物メモ',
     value: '6',
-    note: '莠育ｮ励ヵ繧｣繝ｫ繧ｿ繝ｼ蟇ｾ蠢・',
+    note: '予算フィルター対応',
   },
   {
-    label: '縺頑ｰ励↓蜈･繧・',
+    label: 'お気に入り',
     value: '12',
-    note: '繧医￥菴懊ｋ繝ｬ繧ｷ繝・',
+    note: 'よく作るレシピ',
   },
   {
-    label: '騾夂衍',
+    label: '通知',
     value: '2',
-    note: '雉槫袖譛滄剞縺ｮ遒ｺ隱・',
+    note: '賞味期限の確認',
   },
 ]

@@ -22,7 +22,7 @@ export function HomePage() {
 
         <SummaryGrid items={summaryItems} />
 
-        <section className="feature-section" aria-label="繧ｯ繧､繝・け繧｢繧ｯ繧ｻ繧ｹ">
+        <section className="feature-section" aria-label="クイックアクセス">
           <div className="feature-grid">
             {primaryFeatures.map((feature) => (
               <FeatureCard key={feature.title} feature={feature} />
@@ -38,7 +38,7 @@ export function HomePage() {
         <section
           className="secondary-section"
           id="shopping"
-          aria-label="繧｢繧ｫ繧ｦ繝ｳ繝医→繧ｵ繝昴・繝・"
+          aria-label="アカウントとサポート"
         >
           <div className="secondary-grid">
             {secondaryFeatures.map((feature) => (

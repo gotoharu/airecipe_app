@@ -20,6 +20,104 @@ function normalizeCandidates(items: ReceiptIngredientCandidate[]) {
   }))
 }
 
+const ignoredReceiptLinePattern =
+  /(合計|小計|税込|税率|消費税|現計|釣銭|お預り|お預かり|ポイント|袋|レジ|領収|電話|TEL|カード|クレジット|割引|値引|対象|店舗|担当|No\.|合計点数|買上|お買上|単価|外税|内税|軽減|登録番号|インボイス|ありがとうございました)/i
+
+const localNameCorrections: Array<[RegExp, string, string]> = [
+  [/^(サケ|鮭|さけ|シャケ|しやけ).*?(キリミ|切身|切り身|切み)?$/iu, '鮭切り身', '魚'],
+  [/^(コマツナ|小松菜|こまつな)$/iu, '小松菜', '野菜'],
+  [/^(タマゴ|玉子|卵|たまご).*$/iu, '卵', '卵'],
+  [/^(ギュウニュウ|牛乳|ぎゅうにゅう).*$/iu, '牛乳', '乳製品'],
+  [/^(タマネギ|玉ねぎ|玉葱|たまねぎ).*$/iu, '玉ねぎ', '野菜'],
+  [/^(キャベツ|きゃべつ).*$/iu, 'キャベツ', '野菜'],
+  [/^(ニンジン|人参|にんじん).*$/iu, 'にんじん', '野菜'],
+  [/^(ジャガイモ|じゃがいも|馬鈴薯).*$/iu, 'じゃがいも', '野菜'],
+  [/^(ナットウ|納豆).*$/iu, '納豆', '加工品'],
+  [/^(トウフ|豆腐).*$/iu, '豆腐', '加工品'],
+]
+
+function inferLocalCategory(name: string) {
+  if (/(小松菜|玉ねぎ|キャベツ|にんじん|じゃがいも|トマト|野菜|ねぎ|白菜|大根)/u.test(name)) {
+    return '野菜'
+  }
+
+  if (/(鮭|サーモン|魚|さば|鯖|さんま|まぐろ|刺身)/u.test(name)) {
+    return '魚'
+  }
+
+  if (/(豚|鶏|牛肉|肉|ハム|ベーコン|ウインナー)/u.test(name)) {
+    return '肉'
+  }
+
+  if (/(卵|玉子|たまご)/u.test(name)) {
+    return '卵'
+  }
+
+  if (/(牛乳|チーズ|ヨーグルト|乳)/u.test(name)) {
+    return '乳製品'
+  }
+
+  if (/(米|パン|麺|うどん|そば|パスタ)/u.test(name)) {
+    return '主食'
+  }
+
+  if (/(納豆|豆腐|ちくわ|缶|冷凍|惣菜)/u.test(name)) {
+    return '加工品'
+  }
+
+  return 'その他'
+}
+
+function normalizeLocalName(line: string) {
+  const base = line
+    .replace(/[＊*※]/g, '')
+    .replace(/[¥￥]?\s*\d{2,6}\s*円?$/u, '')
+    .replace(/\s+/g, '')
+    .replace(/[|｜:：]/g, '')
+    .trim()
+  const name = base
+    .replace(/\d+(?:\.\d+)?\s*(g|ｇ|グラム|ml|mL|ML|ミリリットル|個|コ|本|枚|袋|パック|P)$/iu, '')
+    .trim()
+
+  for (const [pattern, replacement] of localNameCorrections) {
+    if (pattern.test(name)) {
+      return replacement
+    }
+  }
+
+  return name || base
+}
+
+function localFallbackParseReceiptText(text: string) {
+  return text
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter((line) => line && !ignoredReceiptLinePattern.test(line))
+    .filter((line) => !/^[\d\s¥￥,.-]+$/u.test(line))
+    .slice(0, 12)
+    .map((line, index) => {
+      const name = normalizeLocalName(line)
+      const correction = localNameCorrections.find(([pattern]) =>
+        pattern.test(name),
+      )
+      const gramMatch = line.match(/(\d+(?:\.\d+)?)\s*(g|ｇ|グラム|ml|mL|ML|ミリリットル)/iu)
+      const quantityMatch = line.match(/(\d+)\s*(個|コ|本|枚|袋|パック|P)/iu)
+
+      return {
+        id: `local-receipt-${index + 1}`,
+        name,
+        category: correction?.[2] ?? inferLocalCategory(name),
+        quantity: quantityMatch ? Number(quantityMatch[1]) : 1,
+        gram: gramMatch ? Math.round(Number(gramMatch[1])) : null,
+        expirationDate: null,
+        memo: 'レシートOCR',
+        selected: true,
+        sourceLine: line,
+      }
+    })
+    .filter((item) => item.name)
+}
+
 export function ReceiptScanPage({ onNavigate }: ReceiptScanPageProps) {
   const [previewUrl, setPreviewUrl] = useState('')
   const [ocrText, setOcrText] = useState('')
@@ -48,8 +146,18 @@ export function ReceiptScanPage({ onNavigate }: ReceiptScanPageProps) {
       setStatusMessage(successMessage)
     } catch (error) {
       console.error('[vite] Receipt parse failed:', error)
-      setErrorMessage('登録候補の作成に失敗しました')
-      setStatusMessage('')
+      const fallbackItems = localFallbackParseReceiptText(text)
+
+      if (fallbackItems.length) {
+        setCandidates(normalizeCandidates(fallbackItems))
+        setStatusMessage(
+          'AI整形に失敗したため、OCR結果から登録候補を作成しました。必要に応じて修正してください。',
+        )
+        setErrorMessage('')
+      } else {
+        setErrorMessage('登録候補の作成に失敗しました')
+        setStatusMessage('')
+      }
     } finally {
       setIsParsing(false)
     }

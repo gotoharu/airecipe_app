@@ -255,7 +255,7 @@ function parseJsonFromModel(content) {
   return JSON.parse(withoutFence)
 }
 
-function fallbackParseReceiptText(ocrText) {
+export function fallbackParseReceiptText(ocrText) {
   const lines = extractReceiptProductLines(ocrText)
 
   return lines.slice(0, 12).map((line, index) => {

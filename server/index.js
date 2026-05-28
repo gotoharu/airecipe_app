@@ -14,6 +14,7 @@ import {
   setRecipeFavorite,
 } from './recipes.js'
 import {
+  fallbackParseReceiptText,
   importReceiptItems,
   parseReceiptText,
 } from './receipts.js'
@@ -449,8 +450,10 @@ async function handleRecipeFavorite(request, response) {
 }
 
 async function handleReceiptParse(request, response) {
+  let body = null
+
   try {
-    const body = await readJsonBody(request)
+    body = await readJsonBody(request)
     const result = await parseReceiptText({
       ocrText: body?.ocrText,
     })
@@ -460,6 +463,19 @@ async function handleReceiptParse(request, response) {
       ...result,
     })
   } catch (error) {
+    const fallbackItems = fallbackParseReceiptText(body?.ocrText ?? '')
+
+    if (fallbackItems.length) {
+      sendJson(response, 200, {
+        ok: true,
+        items: fallbackItems,
+        fallback: true,
+        message:
+          error instanceof Error ? error.message : 'Receipt parse failed',
+      })
+      return
+    }
+
     sendJson(response, 500, {
       ok: false,
       message:

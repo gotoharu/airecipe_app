@@ -79,4 +79,5 @@ export type ReceiptIngredientCandidate = {
   expirationDate?: string | null
   memo?: string | null
   selected: boolean
+  sourceLine?: string | null
 }

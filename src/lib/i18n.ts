@@ -126,7 +126,7 @@ const jaMessages = {
   'settings.currentLanguage': '現在の言語',
   'settings.preferencesTitle': '利用設定',
   'settings.preferencesDescription':
-    'レシピ生成の好みを保存する領域です。実装しやすいよう枠だけ用意しています。',
+    '食材管理やレシピ生成に関連します。',
   'settings.defaultServings': '標準の人数',
   'settings.defaultServingsDescription': 'レシピ生成時の初期人数に使います。',
   'settings.dietary': '苦手な食材・アレルギー',
@@ -439,7 +439,7 @@ const enMessages: Record<MessageKey, string> = {
   'settings.currentLanguage': 'Current language',
   'settings.preferencesTitle': 'Preferences',
   'settings.preferencesDescription':
-    'A home for recipe-generation preferences. The structure is ready for future fields.',
+    'Related to ingredient management and recipe generation.',
   'settings.defaultServings': 'Default servings',
   'settings.defaultServingsDescription':
     'Used as the initial serving count when generating recipes.',
@@ -757,7 +757,7 @@ const frMessages: Record<MessageKey, string> = {
   'settings.currentLanguage': 'Langue actuelle',
   'settings.preferencesTitle': 'Préférences',
   'settings.preferencesDescription':
-    'Espace prévu pour les préférences de génération de recettes.',
+    'Concerne la gestion des ingrédients et la génération de recettes.',
   'settings.defaultServings': 'Nombre de portions par défaut',
   'settings.defaultServingsDescription':
     'Utilisé comme nombre de portions initial lors de la génération.',

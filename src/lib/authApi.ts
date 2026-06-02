@@ -71,7 +71,7 @@ export async function registerWithPassword(email: string, password: string) {
   }>(response)
 }
 
-export async function createGoogleLoginUrl(redirectTo: string) {
+export async function createGoogleLoginUrl(redirectTo?: string) {
   const response = await fetch('/api/auth/google', {
     method: 'POST',
     credentials: 'same-origin',
@@ -123,7 +123,7 @@ export async function logout() {
 
 export async function sendPasswordResetEmail(
   email: string,
-  redirectTo: string,
+  redirectTo?: string,
 ) {
   const response = await fetch('/api/auth/password-reset', {
     method: 'POST',

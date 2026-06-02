@@ -215,6 +215,36 @@ function createClearAuthCookieHeaders(request) {
   }
 }
 
+function getRequestOrigin(request) {
+  const explicitAppUrl =
+    process.env.APP_URL ??
+    process.env.PUBLIC_APP_URL ??
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null)
+
+  if (explicitAppUrl) {
+    return explicitAppUrl.replace(/\/$/, '')
+  }
+
+  const origin = request.headers.origin
+
+  if (origin) {
+    return origin.replace(/\/$/, '')
+  }
+
+  const forwardedProto = request.headers['x-forwarded-proto']
+  const forwardedHost = request.headers['x-forwarded-host']
+  const host = forwardedHost ?? request.headers.host
+
+  if (!host) {
+    return null
+  }
+
+  const proto =
+    forwardedProto ?? (isLocalRequest(request) ? 'http' : 'https')
+
+  return `${proto}://${host}`.replace(/\/$/, '')
+}
+
 async function requireAuthenticatedUser(request) {
   const cookies = parseCookies(request.headers.cookie ?? '')
   const accessToken = cookies[authAccessCookieName]
@@ -554,7 +584,7 @@ async function handleAuthGoogle(request, response) {
   try {
     const body = await readJsonBody(request)
     const result = await createGoogleLoginUrl({
-      redirectTo: body?.redirectTo,
+      redirectTo: getRequestOrigin(request) ?? body?.redirectTo,
     })
 
     sendJson(response, 200, {
@@ -638,7 +668,7 @@ async function handleAuthPasswordReset(request, response) {
 
     const result = await sendPasswordResetEmail({
       email: body.email,
-      redirectTo: body?.redirectTo,
+      redirectTo: getRequestOrigin(request) ?? body?.redirectTo,
     })
 
     sendJson(response, 200, {

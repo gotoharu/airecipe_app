@@ -8,6 +8,7 @@ import { RecipeDetailPage } from './pages/RecipeDetailPage'
 import { CookingHistoryPage } from './pages/CookingHistoryPage'
 import { ReceiptScanPage } from './pages/ReceiptScanPage'
 import { GeminiTestPage } from './pages/GeminiTestPage'
+import { ReceiptDetailRegisterPage } from './pages/ReceiptDetailRegisterPage'
 import { SettingsPage } from './pages/SettingsPage'
 import LoginScreen from './pages/LoginScreen'
 import {
@@ -17,9 +18,9 @@ import {
   type AuthTokenPair,
   type AuthUser,
 } from './lib/authApi'
-import type { AppDestination, Recipe } from './types/ui'
+import type { AppDestination, Recipe, ReceiptIngredientCandidate } from './types/ui'
 
-type Page = AppDestination | 'recipe'
+type Page = AppDestination | 'recipe' | 'receipt-detail'
 
 let oauthSessionRequest: {
   key: string
@@ -121,6 +122,7 @@ function App() {
   const [isAuthLoading, setIsAuthLoading] = useState(true)
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null)
   const [recipeBackPage, setRecipeBackPage] = useState<AppDestination>('home')
+  const [selectedReceiptItems, setSelectedReceiptItems] = useState<ReceiptIngredientCandidate[]>([])
   const [passwordResetTokens, setPasswordResetTokens] =
     useState<AuthTokenPair | null>(null)
 
@@ -282,7 +284,27 @@ function App() {
   }
 
   if (currentPage === 'receipt') {
-    return <ReceiptScanPage onNavigate={handleNavigate} onLogout={handleLogout} />
+    return (
+      <ReceiptScanPage
+        onNavigate={handleNavigate}
+        onLogout={handleLogout}
+        onProceedToDetail={(items: ReceiptIngredientCandidate[]) => {
+          setSelectedReceiptItems(items)
+          handleNavigate('receipt-detail')
+        }}
+      />
+    )
+  }
+
+  if (currentPage === 'receipt-detail') {
+    return (
+      <ReceiptDetailRegisterPage
+        items={selectedReceiptItems}
+        onBack={() => handleNavigate('receipt')}
+        onNavigate={handleNavigate}
+        onLogout={handleLogout}
+      />
+    )
   }
 
   if (currentPage === 'test') {

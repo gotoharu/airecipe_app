@@ -1,13 +1,14 @@
 import { useEffect, useRef, useState } from 'react'
 import { Topbar } from '../components/Topbar'
-import { importReceiptItems, parseReceiptText } from '../lib/receiptApi'
+import { parseReceiptText } from '../lib/receiptApi'
 import { recognizeReceiptImage } from '../lib/receiptOcr'
 import { useI18n } from '../lib/useI18n'
 import type { AppDestination, ReceiptIngredientCandidate } from '../types/ui'
 
 type ReceiptScanPageProps = {
   onNavigate?: (page: AppDestination) => void
-  onLogout?: () => void | Promise<void>
+  onLogout?: () => void
+  onProceedToDetail?: (items: ReceiptIngredientCandidate[]) => void
 }
 
 function createCandidateId() {
@@ -125,10 +126,7 @@ function localFallbackParseReceiptText(text: string) {
     .filter((item) => item.name)
 }
 
-export function ReceiptScanPage({
-  onNavigate,
-  onLogout,
-}: ReceiptScanPageProps) {
+export function ReceiptScanPage({ onNavigate, onLogout, onProceedToDetail }: ReceiptScanPageProps) {
   const { t } = useI18n()
   const videoRef = useRef<HTMLVideoElement | null>(null)
   const cameraStreamRef = useRef<MediaStream | null>(null)
@@ -141,9 +139,7 @@ export function ReceiptScanPage({
   const [errorMessage, setErrorMessage] = useState('')
   const [isReading, setIsReading] = useState(false)
   const [isParsing, setIsParsing] = useState(false)
-  const [isImporting, setIsImporting] = useState(false)
   const [isCameraOpen, setIsCameraOpen] = useState(false)
-  const [importedCount, setImportedCount] = useState(0)
 
   useEffect(() => {
     if (isCameraOpen && videoRef.current && cameraStreamRef.current) {
@@ -206,7 +202,6 @@ export function ReceiptScanPage({
     setPreviewUrl(URL.createObjectURL(file))
     setOcrText('')
     setCandidates([])
-    setImportedCount(0)
     setStatusMessage('')
     setErrorMessage('')
     setProgress(0)
@@ -330,12 +325,11 @@ export function ReceiptScanPage({
         sourceLine: t('receipt.addItem'),
       },
     ])
-    setImportedCount(0)
-    setStatusMessage(t('receipt.manualAdded'))
+    setStatusMessage('手動入力用の項目を追加しました')
     setErrorMessage('')
   }
 
-  async function handleImport() {
+  function handleProceed() {
     const selectedItems = candidates.filter((item) => item.selected)
 
     if (!selectedItems.length) {
@@ -343,22 +337,7 @@ export function ReceiptScanPage({
       return
     }
 
-    setIsImporting(true)
-    setStatusMessage('')
-    setErrorMessage('')
-
-    try {
-      const result = await importReceiptItems(selectedItems)
-      setImportedCount(result.importedCount)
-      setStatusMessage(
-        t('receipt.importSuccess', { count: result.importedCount }),
-      )
-    } catch (error) {
-      console.error('[vite] Receipt import failed:', error)
-      setErrorMessage(t('receipt.importFailed'))
-    } finally {
-      setIsImporting(false)
-    }
+    onProceedToDetail?.(selectedItems)
   }
 
   return (
@@ -474,15 +453,6 @@ export function ReceiptScanPage({
         {statusMessage ? (
           <div className="status-message receipt-status" role="status">
             <span>{statusMessage}</span>
-            {importedCount > 0 ? (
-              <button
-                type="button"
-                className="small-button"
-                onClick={() => onNavigate?.('fridge')}
-              >
-                {t('receipt.viewInventory')}
-              </button>
-            ) : null}
           </div>
         ) : null}
 
@@ -504,19 +474,17 @@ export function ReceiptScanPage({
                   type="button"
                   className="secondary-button"
                   onClick={addManualCandidate}
-                  disabled={isImporting}
+                  disabled={isReading || isParsing}
                 >
                   {t('receipt.addItem')}
                 </button>
                 <button
                   type="button"
                   className="primary-button"
-                  onClick={handleImport}
-                  disabled={isImporting}
+                  onClick={handleProceed}
+                  disabled={isReading || isParsing}
                 >
-                  {isImporting
-                    ? t('receipt.importing')
-                    : t('receipt.importSelected')}
+                  {t('receipt.proceedToDetail')}
                 </button>
               </div>
             </div>

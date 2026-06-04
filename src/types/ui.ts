@@ -36,6 +36,7 @@ export type AppDestination =
   | 'test'
   | 'settings'
   | 'login'
+  | 'receipt-detail'
 
 export type Ingredient = {
   inventoryId?: number
@@ -83,6 +84,7 @@ export type ReceiptIngredientCandidate = {
   category: string
   quantity?: number | null
   gram?: number | null
+  bestBeforeDate?: string | null
   expirationDate?: string | null
   memo?: string | null
   selected: boolean

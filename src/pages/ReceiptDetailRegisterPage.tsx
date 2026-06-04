@@ -43,8 +43,6 @@ export function ReceiptDetailRegisterPage({
           return 7
         case '加工品':
           return 14
-        case '飲料':
-          return 14
         default:
           return 7
       }
@@ -84,7 +82,6 @@ export function ReceiptDetailRegisterPage({
     '野菜',
     '乳製品',
     '加工品',
-    '飲料',
     'その他',
   ]
 

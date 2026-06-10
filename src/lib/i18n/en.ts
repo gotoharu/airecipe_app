@@ -71,6 +71,8 @@ export const enMessages: Record<MessageKey, string> = {
   'home.ingredients.add': 'Add',
   'home.ingredients.empty':
     'No ingredients have been registered yet. Add ingredients from receipt registration.',
+  'home.ingredients.expandMore': 'Show {remaining} more',
+  'home.ingredients.expandLess': 'Show less',
   'home.recipes.eyebrow': 'Recipe ideas',
   'home.recipes.title': 'Meals you can cook from inventory',
   'home.recipes.regenerate': 'Regenerate',

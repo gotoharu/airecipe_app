@@ -1,8 +1,9 @@
-import { memo, useMemo } from 'react'
+import { memo, useMemo, useState } from 'react'
 import type { Ingredient } from '../types/ui'
 import { useI18n } from '../lib/useI18n'
 
 const visibleExpirationDays = 7
+const MAX_VISIBLE_ITEMS = 7
 
 function getDaysUntilExpiration(ingredient: Ingredient) {
   if (!ingredient.expirationDate) {
@@ -30,6 +31,8 @@ export const IngredientsPanel = memo(function IngredientsPanel({
   onAddIngredient?: () => void
 }) {
   const { t } = useI18n()
+  const [isExpanded, setIsExpanded] = useState(false)
+
   const visibleIngredients = useMemo(() => {
     const withDays = ingredients
       .map((ingredient) => ({
@@ -47,6 +50,11 @@ export const IngredientsPanel = memo(function IngredientsPanel({
     return withDays.map((entry) => entry.ingredient)
   }, [ingredients])
 
+  const hasMore = visibleIngredients.length > MAX_VISIBLE_ITEMS
+  const displayedIngredients = isExpanded || !hasMore
+    ? visibleIngredients
+    : visibleIngredients.slice(0, MAX_VISIBLE_ITEMS)
+
   return (
     <section
       className="panel"
@@ -63,9 +71,9 @@ export const IngredientsPanel = memo(function IngredientsPanel({
         </button>
       </div>
 
-      {visibleIngredients.length ? (
+      {displayedIngredients.length ? (
         <ul className="ingredient-list">
-          {visibleIngredients.map((ingredient) => (
+          {displayedIngredients.map((ingredient) => (
             <li key={ingredient.inventoryId ?? ingredient.name}>
               <span>
                 <strong>{ingredient.name}</strong>
@@ -78,6 +86,18 @@ export const IngredientsPanel = memo(function IngredientsPanel({
       ) : (
         <p className="empty-state">{t('home.ingredients.empty')}</p>
       )}
+
+      {hasMore ? (
+        <button
+          type="button"
+          className="small-button ingredients-expand-toggle"
+          onClick={() => setIsExpanded((current) => !current)}
+        >
+          {isExpanded
+            ? t('home.ingredients.expandLess')
+            : t('home.ingredients.expandMore', { remaining: visibleIngredients.length - MAX_VISIBLE_ITEMS })}
+        </button>
+      ) : null}
     </section>
   )
 })

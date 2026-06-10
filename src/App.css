@@ -639,6 +639,13 @@ button:disabled {
   font-weight: 900;
 }
 
+.ingredients-expand-toggle {
+  display: block;
+  width: 100%;
+  margin-top: 10px;
+  text-align: center;
+}
+
 .recipe-stack {
   display: grid;
   gap: 12px;

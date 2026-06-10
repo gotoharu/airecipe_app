@@ -73,6 +73,8 @@ export const frMessages: Record<MessageKey, string> = {
   'home.ingredients.add': 'Ajouter',
   'home.ingredients.empty':
     'Aucun ingrédient enregistré. Ajoutez des ingrédients depuis un ticket.',
+  'home.ingredients.expandMore': 'Afficher {remaining} de plus',
+  'home.ingredients.expandLess': 'Réduire',
   'home.recipes.eyebrow': 'Idées de recettes',
   'home.recipes.title': 'Menus possibles depuis le stock',
   'home.recipes.regenerate': 'Regénérer',

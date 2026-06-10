@@ -267,10 +267,6 @@ export function FridgePage({
   )
   const [deleteConfirm, setDeleteConfirm] = useState<DeleteConfirmState>(null)
   const [isSaving, setIsSaving] = useState(false)
-  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(
-    () => new Set(),
-  )
-  const MAX_VISIBLE_ITEMS = 7
   const [formError, setFormError] = useState('')
   const summary = useMemo(() => buildSummary(ingredients), [ingredients])
   const aggregatedIngredients = useMemo(
@@ -568,18 +564,6 @@ export function FridgePage({
     setIsSelectionMode(true)
   }
 
-  function toggleCategoryExpanded(category: string) {
-    setExpandedCategories((current) => {
-      const next = new Set(current)
-      if (next.has(category)) {
-        next.delete(category)
-      } else {
-        next.add(category)
-      }
-      return next
-    })
-  }
-
   function handleExitSelection() {
     setSelectedInventoryIds(new Set())
     setIsSelectionMode(false)
@@ -761,14 +745,7 @@ export function FridgePage({
                   displayActiveCategory === allCategoryKey ||
                   displayActiveCategory === category,
               )
-              .map(([category, items]) => {
-                const isExpanded = expandedCategories.has(category)
-                const hasMore = items.length > MAX_VISIBLE_ITEMS
-                const visibleItems = isExpanded || !hasMore
-                  ? items
-                  : items.slice(0, MAX_VISIBLE_ITEMS)
-
-                return (
+              .map(([category, items]) => (
                 <div key={category} className="category-table-wrapper">
                   <h2 className="category-title">{getCategoryLabel(category)}</h2>
                   <div className="table-container">
@@ -788,7 +765,7 @@ export function FridgePage({
                         </tr>
                       </thead>
                       <tbody>
-                        {visibleItems.map((item) => {
+                        {items.map((item) => {
                           const isWarning =
                             isNearExpiration(item.nearestExpirationDate) ||
                             isNearExpiration(item.nearestBestBeforeDate)
@@ -875,20 +852,8 @@ export function FridgePage({
                       </tbody>
                     </table>
                   </div>
-                  {hasMore ? (
-                    <button
-                      type="button"
-                      className="small-button category-expand-toggle"
-                      onClick={() => toggleCategoryExpanded(category)}
-                    >
-                      {isExpanded
-                        ? t('fridge.expand.less')
-                        : t('fridge.expand.more', { remaining: items.length - MAX_VISIBLE_ITEMS })}
-                    </button>
-                  ) : null}
                 </div>
-              )
-            })
+              ))
           )}
         </div>
           </div>

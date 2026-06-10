@@ -2,7 +2,7 @@ import './env.js'
 
 const geminiApiKey = process.env.GEMINI_API_KEY
 export const geminiModelQueue = [
-  { model: 'gemini-3.1-flash-lite', requestsPerMinute: 10 },
+  { model: 'gemini-3.1-flash-lite', requestsPerMinute: 15 },
   { model: 'gemini-2.5-flash-lite', requestsPerMinute: 10 },
   { model: 'gemini-3-flash-preview', requestsPerMinute: 5 },
   { model: 'gemini-2.5-flash', requestsPerMinute: 5 },

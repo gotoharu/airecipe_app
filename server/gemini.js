@@ -2,8 +2,6 @@ import './env.js'
 
 const geminiApiKey = process.env.GEMINI_API_KEY
 export const geminiModelQueue = [
-  { model: 'gemini-3.5-flash', requestsPerMinute: 5 },
-  { model: 'gemini-3-flash-preview', requestsPerMinute: 5 },
   { model: 'gemini-2.5-flash', requestsPerMinute: 5 },
   { model: 'gemini-2.5-flash-lite', requestsPerMinute: 10 },
 ]
@@ -102,6 +100,15 @@ export function getGeminiUsageSnapshot() {
   const now = Date.now()
 
   return geminiModelQueue.map((item) => getModelUsage(item.model, now))
+}
+
+function logGeminiModelEvent(event, details = {}) {
+  const detailText = Object.entries(details)
+    .filter(([, value]) => value !== undefined && value !== null && value !== '')
+    .map(([key, value]) => `${key}=${value}`)
+    .join(' ')
+
+  console.info(`[node] Gemini ${event}${detailText ? ` ${detailText}` : ''}`)
 }
 
 function createRateLimitError(attemptedModels, skippedModels, errors) {
@@ -210,18 +217,35 @@ export async function generateGeminiContent({
   const errors = []
 
   for (const candidateModel of candidateModels) {
-    if (getModelUsage(candidateModel).remaining <= 0) {
+    const usageBeforeAttempt = getModelUsage(candidateModel)
+
+    if (usageBeforeAttempt.remaining <= 0) {
+      logGeminiModelEvent('skip', {
+        model: candidateModel,
+        reason: 'local-rate-limit',
+        used: `${usageBeforeAttempt.used}/${usageBeforeAttempt.limit}`,
+        resetInMs: usageBeforeAttempt.resetInMs,
+      })
       skippedModels.push(candidateModel)
       continue
     }
 
     try {
+      logGeminiModelEvent('try', {
+        model: candidateModel,
+        used: `${usageBeforeAttempt.used}/${usageBeforeAttempt.limit}`,
+      })
       attemptedModels.push(candidateModel)
       const payload = await requestGeminiModel({
         model: candidateModel,
         body,
       })
       const outputParts = payload?.candidates?.[0]?.content?.parts ?? []
+      logGeminiModelEvent('success', {
+        model: candidateModel,
+        attempted: attemptedModels.join(','),
+        skipped: skippedModels.join(','),
+      })
 
       return {
         model: candidateModel,
@@ -234,6 +258,11 @@ export async function generateGeminiContent({
       }
     } catch (error) {
       const message = String(error?.message ?? '')
+      logGeminiModelEvent('failed', {
+        model: candidateModel,
+        statusCode: error?.statusCode,
+        message: message.slice(0, 160),
+      })
 
       if (!responseMimeType || !/responseMimeType|generationConfig|mime/i.test(message)) {
         errors.push({
@@ -248,12 +277,20 @@ export async function generateGeminiContent({
       void generationConfig
 
       try {
+        logGeminiModelEvent('retry-without-responseMimeType', {
+          model: candidateModel,
+        })
         attemptedModels.push(candidateModel)
         const payload = await requestGeminiModel({
           model: candidateModel,
           body: bodyWithoutGenerationConfig,
         })
         const outputParts = payload?.candidates?.[0]?.content?.parts ?? []
+        logGeminiModelEvent('success', {
+          model: candidateModel,
+          attempted: attemptedModels.join(','),
+          skipped: skippedModels.join(','),
+        })
 
         return {
           model: candidateModel,
@@ -265,6 +302,11 @@ export async function generateGeminiContent({
           raw: payload,
         }
       } catch (retryError) {
+        logGeminiModelEvent('retry-failed', {
+          model: candidateModel,
+          statusCode: retryError?.statusCode,
+          message: String(retryError?.message ?? '').slice(0, 160),
+        })
         errors.push({
           model: candidateModel,
           message: String(retryError?.message ?? ''),

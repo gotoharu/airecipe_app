@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { FeatureCard } from '../components/FeatureCard'
 import { HeroPanel } from '../components/HeroPanel'
-import { IngredientsPanel } from '../components/IngredientsPanel'
 import { RecipesPanel } from '../components/RecipesPanel'
 import { SummaryGrid } from '../components/SummaryGrid'
 import { Topbar } from '../components/Topbar'
@@ -132,7 +131,10 @@ export function HomePage({
   const [servings, setServings] = useState(1)
   const [preferences, setPreferences] =
     useState<UserPreferences>(defaultPreferences)
-  const secondaryFeatures = useMemo(() => getSecondaryFeatures(t), [t])
+  const secondaryFeatures = useMemo(
+    () => getSecondaryFeatures(t).filter((feature) => feature.icon !== 'settings'),
+    [t],
+  )
   const currentSummaryItems = useMemo(
     () => buildSummaryItems(ingredients, recipes, preferences, t),
     [ingredients, preferences, recipes, t],
@@ -269,11 +271,7 @@ export function HomePage({
 
         <SummaryGrid items={currentSummaryItems} />
 
-        <div className="dashboard-grid">
-          <IngredientsPanel
-            ingredients={ingredients}
-            onAddIngredient={() => onNavigate?.('ingredient-register')}
-          />
+        <div className="dashboard-grid dashboard-grid--single">
           <RecipesPanel
             recipes={recipes}
             isGenerating={isGenerating}
@@ -288,17 +286,9 @@ export function HomePage({
           id="shopping"
           aria-label={t('home.secondaryLabel')}
         >
-          <div className="secondary-grid">
+          <div className="secondary-grid secondary-grid--pair">
             {secondaryFeatures.map((feature) => (
-              <FeatureCard
-                key={feature.title}
-                feature={feature}
-                onAction={
-                  feature.icon === 'settings'
-                    ? () => onNavigate?.('settings')
-                    : undefined
-                }
-              />
+              <FeatureCard key={feature.title} feature={feature} />
             ))}
           </div>
         </section>

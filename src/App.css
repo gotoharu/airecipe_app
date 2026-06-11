@@ -3101,3 +3101,98 @@ button:disabled {
   color: var(--muted);
   font-size: 13px;
 }
+
+/* Master merge: fridge bulk actions & ingredient detail */
+.fridge-bulk-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  margin: -10px 0 24px;
+}
+
+.fridge-selection-cancel {
+  margin-left: auto;
+}
+
+.ingredient-detail-modal {
+  width: min(760px, 100%);
+  max-height: min(86vh, 760px);
+  overflow: auto;
+}
+
+.ingredient-detail-summary {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.ingredient-detail-total {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.ingredient-detail-list {
+  display: grid;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.ingredient-detail-item {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+}
+
+.fridge-table.is-selecting th:nth-child(1),
+.fridge-table.is-selecting td:nth-child(1) {
+  width: 48px;
+  min-width: 48px;
+  padding-right: 6px;
+  text-align: center;
+}
+
+@media (max-width: 700px) {
+  .fridge-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .fridge-header-actions {
+    width: 100%;
+  }
+
+  .back-home-button {
+    width: 100%;
+  }
+
+  .fridge-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .fridge-table th,
+  .fridge-table td {
+    padding: 12px 14px;
+    font-size: 13px;
+  }
+
+  .ingredient-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ingredient-detail-total,
+  .ingredient-detail-item dl {
+    grid-template-columns: 1fr;
+  }
+
+  .fridge-row-actions .small-button {
+    width: auto;
+  }
+}

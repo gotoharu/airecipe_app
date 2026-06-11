@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Topbar } from '../components/Topbar'
 import { fetchSavedRecipes } from '../lib/recipeApi'
+import { getCache, setCache } from '../lib/dataCache'
 import { useI18n } from '../lib/useI18n'
 import type { TranslateFn } from '../lib/i18n'
 import type { AppDestination, Recipe } from '../types/ui'
@@ -9,9 +9,10 @@ type CookingHistoryPageProps = {
   onNavigate?: (page: AppDestination) => void
   onSelectRecipe: (recipe: Recipe) => void
   onLogout?: () => void | Promise<void>
+  initialFilter?: RecipeFilter
 }
 
-type RecipeFilter = 'all' | 'uncooked' | 'cooked' | 'favorite'
+export type RecipeFilter = 'all' | 'uncooked' | 'cooked' | 'favorite'
 
 const recipeFilters: Array<{
   labelKey: Parameters<TranslateFn>[0]
@@ -61,14 +62,14 @@ function formatRecipeStatus(
 export function CookingHistoryPage({
   onNavigate,
   onSelectRecipe,
-  onLogout,
+  initialFilter = 'all',
 }: CookingHistoryPageProps) {
   const { language, t } = useI18n()
   const [recipes, setRecipes] = useState<Recipe[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
   const [retryCount, setRetryCount] = useState(0)
-  const [activeFilter, setActiveFilter] = useState<RecipeFilter>('all')
+  const [activeFilter, setActiveFilter] = useState<RecipeFilter>(initialFilter)
   const filteredRecipes = useMemo(
     () =>
       recipes.filter((recipe) => {
@@ -100,12 +101,21 @@ export function CookingHistoryPage({
 
   useEffect(() => {
     let isMounted = true
+    const cacheKey = `cooking-history:${language}`
+
+    const cached = getCache<Recipe[]>(cacheKey)
+    if (cached) {
+      setRecipes(cached)
+      setIsLoading(false)
+    }
 
     fetchSavedRecipes(language)
       .then((result) => {
         if (isMounted) {
+          setCache(cacheKey, result.recipes)
           setRecipes(result.recipes)
           setError('')
+          setIsLoading(false)
         }
       })
       .catch((fetchError) => {
@@ -117,10 +127,6 @@ export function CookingHistoryPage({
               ? fetchError.message
               : t('history.fetchFailed'),
           )
-        }
-      })
-      .finally(() => {
-        if (isMounted) {
           setIsLoading(false)
         }
       })
@@ -131,9 +137,7 @@ export function CookingHistoryPage({
   }, [language, retryCount, t])
 
   return (
-    <div className="app-shell">
-      <Topbar onNavigate={onNavigate} onLogout={onLogout} />
-
+    <>
       <main className="history-page">
         <div className="fridge-header">
           <div>
@@ -150,7 +154,10 @@ export function CookingHistoryPage({
         </div>
 
         {isLoading ? (
-          <p className="status-message">{t('history.loading')}</p>
+          <div className="fridge-loading">
+            <div className="loading-spinner" />
+            <p>{t('history.loading')}</p>
+          </div>
         ) : null}
 
         {error ? (
@@ -175,51 +182,53 @@ export function CookingHistoryPage({
         ) : null}
 
         {!isLoading && !error && recipes.length > 0 ? (
-          <div className="category-filters history-filters">
-            {recipeFilters.map((filter) => (
-              <button
-                key={filter.value}
-                type="button"
-                className={`filter-pill ${
-                  activeFilter === filter.value ? 'active' : ''
-                }`}
-                onClick={() => setActiveFilter(filter.value)}
-              >
-                {t(filter.labelKey)}
-                <span>{filterCounts[filter.value]}</span>
-              </button>
-            ))}
-          </div>
-        ) : null}
+          <div className="content-appear">
+            <div className="category-filters history-filters">
+              {recipeFilters.map((filter) => (
+                <button
+                  key={filter.value}
+                  type="button"
+                  className={`filter-pill ${
+                    activeFilter === filter.value ? 'active' : ''
+                  }`}
+                  onClick={() => setActiveFilter(filter.value)}
+                >
+                  {t(filter.labelKey)}
+                  <span>{filterCounts[filter.value]}</span>
+                </button>
+              ))}
+            </div>
 
-        {!isLoading && !error && recipes.length > 0 && filteredRecipes.length === 0 ? (
-          <p className="empty-state">{t('history.emptyFilter')}</p>
-        ) : null}
-
-        <div className="history-list">
-          {filteredRecipes.map((recipe) => (
-            <button
-              key={recipe.recipeId}
-              type="button"
-              className="history-card"
-              onClick={() => onSelectRecipe(recipe)}
-            >
-              <div>
-                <span className="status-pill">
-                  {formatRecipeStatus(recipe, language, t)}
-                </span>
-                <h2>{recipe.name}</h2>
-                <p>{recipe.meta}</p>
-              </div>
-              <div className="tag-row">
-                {recipe.tags.map((tag) => (
-                  <span key={tag}>{tag}</span>
+            {filteredRecipes.length === 0 ? (
+              <p className="empty-state">{t('history.emptyFilter')}</p>
+            ) : (
+              <div className="history-list card-stagger">
+                {filteredRecipes.map((recipe) => (
+                  <button
+                    key={recipe.recipeId}
+                    type="button"
+                    className="history-card"
+                    onClick={() => onSelectRecipe(recipe)}
+                  >
+                    <div>
+                      <span className="status-pill">
+                        {formatRecipeStatus(recipe, language, t)}
+                      </span>
+                      <h2>{recipe.name}</h2>
+                      <p>{recipe.meta}</p>
+                    </div>
+                    <div className="tag-row">
+                      {recipe.tags.map((tag) => (
+                        <span key={tag}>{tag}</span>
+                      ))}
+                    </div>
+                  </button>
                 ))}
               </div>
-            </button>
-          ))}
-        </div>
+            )}
+          </div>
+        ) : null}
       </main>
-    </div>
+    </>
   )
 }

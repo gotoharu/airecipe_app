@@ -54,7 +54,7 @@ export const jaMessages = {
   'home.hero.titleLine1': '作れるレシピを',
   'home.hero.titleLine2': '食材からすぐ提案',
   'home.hero.lead':
-    '食材登録、期限管理、レシピ生成までをひとつの画面から始められます。',
+    '食材登録から期限管理、レシピ生成までをひとつの画面で手軽に始められます。',
   'home.hero.generating': '生成中...',
   'home.hero.generate': 'レシピを生成',
   'home.hero.addIngredient': '食材確認',

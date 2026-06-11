@@ -25,6 +25,7 @@ import {
 import {
   createInventoryItemForUser,
   deleteInventoryItemForUser,
+  deleteSavedRecipeForUser,
   generateAndSaveRecipes,
   getCookingHistoryForUser,
   getInventoryForUser,
@@ -426,6 +427,19 @@ export async function handleApiRequest(request, response) {
 
   if (request.method === 'GET' && url.pathname === '/api/recipes/saved') {
     await handleSavedRecipes(
+      authUser.id,
+      response,
+      url.searchParams.get('language'),
+    )
+    return
+  }
+
+  const savedRecipeDeleteMatch = url.pathname.match(
+    /^\/api\/recipes\/saved\/([^/]+)$/,
+  )
+  if (request.method === 'DELETE' && savedRecipeDeleteMatch) {
+    await handleDeleteSavedRecipe(
+      savedRecipeDeleteMatch[1],
       authUser.id,
       response,
       url.searchParams.get('language'),
@@ -1137,6 +1151,28 @@ async function handleSavedRecipes(userId, response, language) {
         error instanceof Error
           ? error.message
           : 'Saved recipes request failed',
+    })
+  }
+}
+
+async function handleDeleteSavedRecipe(recipeId, userId, response, language) {
+  try {
+    const recipes = await deleteSavedRecipeForUser({
+      recipeId: decodeURIComponent(recipeId),
+      userId,
+      language,
+    })
+    sendJson(response, 200, {
+      ok: true,
+      ...recipes,
+    })
+  } catch (error) {
+    const statusCode =
+      error instanceof Error && error.message === 'Recipe not found' ? 404 : 500
+    sendJson(response, statusCode, {
+      ok: false,
+      message:
+        error instanceof Error ? error.message : 'Saved recipe delete failed',
     })
   }
 }

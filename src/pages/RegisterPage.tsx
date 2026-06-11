@@ -119,6 +119,8 @@ export default function RegisterPage({
           </p>
         ) : null}
 
+        <p style={styles.emailNotice}>{t("login.emailDelayNotice")}</p>
+
         <button
           type="submit"
           disabled={isLoading || !email || !password}
@@ -284,6 +286,12 @@ const styles: Record<string, CSSProperties> = {
     outline: "none",
     transition: "border-color 0.2s, box-shadow 0.2s",
     fontFamily: "inherit",
+  },
+  emailNotice: {
+    margin: "-2px 0 14px",
+    color: "#6B7280",
+    fontSize: 12,
+    lineHeight: 1.6,
   },
   statusMessage: {
     margin: "-2px 0 14px",

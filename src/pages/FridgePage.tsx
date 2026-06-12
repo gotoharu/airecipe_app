@@ -461,6 +461,23 @@ export function FridgePage({
     }
   }
 
+  function getCategoryTitleClass(category: string) {
+    switch (category) {
+      case '肉・卵・魚':
+        return 'category-title--meat'
+      case '野菜':
+        return 'category-title--veg'
+      case '乳製品':
+        return 'category-title--dairy'
+      case '加工品':
+        return 'category-title--processed'
+      case 'その他':
+        return 'category-title--other'
+      default:
+        return 'category-title--other'
+    }
+  }
+
   function toggleCategoryFilter(category: string) {
     setSelectedCategories((current) => {
       const next = new Set(current)
@@ -1038,7 +1055,14 @@ export function FridgePage({
             sortedCategoryEntries
               .map(([category, items]) => (
                 <div key={category} className="category-table-wrapper">
-                  <h2 className="category-title">{getCategoryLabel(category)}</h2>
+                  <h2
+                    className={`category-title ${getCategoryTitleClass(category)}`}
+                  >
+                    <span className="category-title__label">
+                      {getCategoryLabel(category)}
+                    </span>
+                    <span className="category-title__count">{items.length}</span>
+                  </h2>
                   <div className="table-container">
                     <table className={`fridge-table ${isSelectionMode ? 'is-selecting' : ''}`}>
                       <thead>
@@ -1102,27 +1126,13 @@ export function FridgePage({
                                 </td>
                               ) : null}
                               <td className="ingredient-name-cell">
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                                  <button
-                                    type="button"
-                                    className="ingredient-name-link"
-                                    onClick={() => setDetailIngredient(item)}
-                                  >
-                                    {item.name}
-                                  </button>
-                                  {isExpiredItem && (
-                                    <span className="expiry-alert expired-badge">
-                                      <Icon name="bell" />
-                                      {t('fridge.summary.expired')}
-                                    </span>
-                                  )}
-                                  {isWarning && (
-                                    <span className="expiry-alert">
-                                      <Icon name="bell" />
-                                      {t('fridge.summary.nearExpiration')}
-                                    </span>
-                                  )}
-                                </div>
+                                <button
+                                  type="button"
+                                  className="ingredient-name-link"
+                                  onClick={() => setDetailIngredient(item)}
+                                >
+                                  {item.name}
+                                </button>
                               </td>
                               <td>
                                 <span className="amount-text">

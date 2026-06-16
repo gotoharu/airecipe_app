@@ -2099,13 +2099,24 @@ button:disabled {
     font-size: 15px;
   }
 
-  .hero-actions,
+  .hero-actions{
+    display: flex;
+    flex-wrap: nowrap !important; 
+    overflow-x: auto;            
+    gap: 0.5rem;                 
+    padding-bottom: 8px;
+  }
+  
   .primary-button,
   .secondary-button {
     width: 100%;
   }
 
-  .summary-grid,
+  .summary-grid{
+    grid-template-columns: repeat(2,1fr);
+    gap: 0.75rem;
+  }
+
   .feature-grid,
   .secondary-grid {
     grid-template-columns: 1fr;
